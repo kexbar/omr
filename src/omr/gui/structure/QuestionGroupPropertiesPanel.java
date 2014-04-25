@@ -10,15 +10,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.Scrollable;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -49,10 +41,11 @@ public class QuestionGroupPropertiesPanel extends JPanel implements Scrollable, 
     private JSpinner bubbleWidthSpinner; 
     private JSpinner bubbleHeightSpinner;
     private JSpinner indexSpinner;
+    private JCheckBox orderChkBox;
     private JButton answerKey;
     
     private JComboBox orientation;
-    private Orientation[] orientations = {Orientation.VERTICAL, Orientation.STUDENT_NUMBER, Orientation.CHECK_LETTER};
+    private Orientation[] orientations = {Orientation.VERTICAL, Orientation.HORIZONTAL,  Orientation.STUDENT_NUMBERH,  Orientation.STUDENT_NUMBERV, Orientation.CHECK_LETTER};
     
     public QuestionGroupPropertiesPanel() {
         this.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED), "Question group properties"));
@@ -102,15 +95,22 @@ public class QuestionGroupPropertiesPanel extends JPanel implements Scrollable, 
         indexSpinner.addChangeListener(this);
         this.add(indexSpinner, right);
 
+        // Answer order (A -> D, or D -> A)
+        left.gridy = right.gridy = 5;
+        this.add(new JLabel("D -> A:"), left);
+        orderChkBox = new JCheckBox();
+        orderChkBox.addChangeListener(this);
+        this.add(orderChkBox, right);
+
         // Orientation
-        wide.gridy = 5;
+        wide.gridy = 6;
         orientation = new JComboBox(orientations);
         orientation.addItemListener(this);
         this.add(orientation, wide);
         //orientation.addActionListener(this);
         
         // Answer key
-        wide.gridy = 6;
+        wide.gridy = 7;
         answerKey = new JButton("Answer key...");
         answerKey.addActionListener(this);
         this.add(answerKey, wide);
@@ -160,7 +160,9 @@ public class QuestionGroupPropertiesPanel extends JPanel implements Scrollable, 
         orientation.setSelectedItem(group.getOrientation());
         
         // Enable/disable properties
-        if (group.getOrientation() == Orientation.CHECK_LETTER || group.getOrientation() == Orientation.STUDENT_NUMBER) {
+        if (group.getOrientation() == Orientation.CHECK_LETTER ||
+                group.getOrientation() == Orientation.STUDENT_NUMBERH ||
+                group.getOrientation() == Orientation.STUDENT_NUMBERV   ) {
         	indexSpinner.setEnabled(false);
         	answerKey.setEnabled(false);
         } else {
@@ -195,7 +197,11 @@ public class QuestionGroupPropertiesPanel extends JPanel implements Scrollable, 
             group.setBubbleHeight(((SpinnerNumberModel)bubbleHeightSpinner.getModel()).getNumber().intValue());
         } else if (source == indexSpinner) {
             group.setIndexOffset(((SpinnerNumberModel)indexSpinner.getModel()).getNumber().intValue());
+        } else if (source == orderChkBox) {
+            if (orderChkBox.getModel().isSelected())
+                group.setAnswerOrder(1);
         }
+
         
         // Update undo object to support redo
         currentEdit.updateAttributes();

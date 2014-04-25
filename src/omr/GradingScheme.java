@@ -36,7 +36,8 @@ public class GradingScheme {
      * Default constructor. 1 point for correct answer, -0.5 for incorrect or multiple selected, 0 if nothing is selected 
      */
     public GradingScheme() {
-        this(1.0, -.5, 0.0, -100.0, -.5, 1);
+        //this(1.0, -.5, 0.0, -100.0, -.5, 1);
+        this(1.0, 0.0, 0.0, -100.0, 0.0, 1);
     }
     
     /**

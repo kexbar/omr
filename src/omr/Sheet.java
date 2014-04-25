@@ -519,7 +519,7 @@ public class Sheet extends Observable {
         } else {
 	        for (int alternative = 0; alternative < group.getAlternativesCount(); alternative++) {
 	        	int answer;
-	        	if (group.getOrientation() == Orientation.VERTICAL || group.getOrientation() == Orientation.STUDENT_NUMBER) {
+	        	if (group.getOrientation() == Orientation.VERTICAL || group.getOrientation() == Orientation.STUDENT_NUMBERH) {
 	        		answer = getAnswer(group, question, alternative);
 	        	} else {
 	        		answer = getAnswer(group, alternative, question);
@@ -889,11 +889,16 @@ public class Sheet extends Observable {
         }
         
         // Set student number
-        if (group.getOrientation() == Orientation.STUDENT_NUMBER) {
+        if (group.getOrientation() == Orientation.STUDENT_NUMBERH) {
         	this.studentIdNumber = "";
         	for (int row = 0; row < choices.length; row++) { 
         		this.studentIdNumber += getChoices(group, row);
         	}
+        } else if (group.getOrientation() == Orientation.STUDENT_NUMBERV) {
+            this.studentIdNumber = "";
+            for (int col = 0; col < columnCount; col++) {
+                this.studentIdNumber += getChoices(group, col);
+            }
         }
         
         // Set check letter

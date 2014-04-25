@@ -15,7 +15,7 @@ public class QuestionGroup extends Observable implements Comparable<QuestionGrou
      * HORIZONTAL means that columns represent questions and rows represent alternatives.
      */
     public enum Orientation {
-    	VERTICAL("vertical"), HORIZONTAL("horizontal"), STUDENT_NUMBER("student-number"), CHECK_LETTER("check-letter");
+    	VERTICAL("vertical"), HORIZONTAL("horizontal"), STUDENT_NUMBERH("student-number-H"), STUDENT_NUMBERV("student-number-V"), CHECK_LETTER("check-letter");
     	
     	private String name;
     	private Orientation(String name) {
@@ -46,6 +46,8 @@ public class QuestionGroup extends Observable implements Comparable<QuestionGrou
     
     private int bubbleWidth;
     private int bubbleHeight;
+
+    private int descAnswerOrder;
     
     private boolean[][] answerKey;  // Correct answers [question][alternative], true if the correct answer is to fill the bubble
     
@@ -74,6 +76,8 @@ public class QuestionGroup extends Observable implements Comparable<QuestionGrou
         } else {
         	this.answerKey = new boolean[rowCount][columnCount];
         }
+
+        this.descAnswerOrder = 0;
         
         // Notify observers
         setChanged();
@@ -138,6 +142,17 @@ public class QuestionGroup extends Observable implements Comparable<QuestionGrou
         // Notify observers 
         setChanged();
         notifyObservers(QuestionGroupEvent.STRUCTURE_CHANGED);
+    }
+
+    /**
+     * Set the global order of the answer sheet( from A - Z, or Z - A)
+     */
+    public void setAnswerOrder(int desc) {
+        this.descAnswerOrder = desc;
+    }
+
+    public int getAnswerOrder() {
+        return this.descAnswerOrder;
     }
     
     /**
@@ -366,7 +381,7 @@ public class QuestionGroup extends Observable implements Comparable<QuestionGrou
      * If orientation is horizontal, this is the same as column count.
      */
     public int getQuestionsCount() {
-        if (orientation == Orientation.HORIZONTAL) {
+        if (orientation == Orientation.HORIZONTAL || orientation == Orientation.STUDENT_NUMBERV) {
         	return getColumnCount();
         } else {
         	return getRowCount();
@@ -379,7 +394,7 @@ public class QuestionGroup extends Observable implements Comparable<QuestionGrou
      * If orientation is horizontal, this is the same as row count.
      */
     public int getAlternativesCount() {
-        if (orientation == Orientation.HORIZONTAL) {
+        if (orientation == Orientation.HORIZONTAL || orientation == Orientation.STUDENT_NUMBERV) {
         	return getRowCount();
         } else {
             return getColumnCount();
@@ -395,6 +410,8 @@ public class QuestionGroup extends Observable implements Comparable<QuestionGrou
         	return Integer.toString(getQuestionNumber(column));
         } else if (orientation == Orientation.CHECK_LETTER) {
         	return "";
+        } else if (orientation == Orientation.STUDENT_NUMBERV) {
+            return getAlternative(column + 1);
         } else {
             return getAlternative(column);
         }
@@ -402,15 +419,15 @@ public class QuestionGroup extends Observable implements Comparable<QuestionGrou
     
     /**
      * Returns the text label of the given row. For a vertical group, this is the number of the question. 
-     * @param column Local row number [0,n]
+     * @param row Local row number [0,n]
      */
     public String getRowLabel(int row) {
         if (orientation == Orientation.HORIZONTAL) {
-        	return getAlternative(row);
+            return getAlternative(row);
         } else if (orientation == Orientation.CHECK_LETTER) {
-        	return "";
-        } else if (orientation == Orientation.STUDENT_NUMBER) {
-        	return row + 1 + ".";
+            return "";
+        } else if (orientation == Orientation.STUDENT_NUMBERH) {
+            return row + 1 + ".";
         } else {
             return Integer.toString(getQuestionNumber(row));
         }
@@ -421,7 +438,7 @@ public class QuestionGroup extends Observable implements Comparable<QuestionGrou
      * @param alternative Alternative number [0,n]
      */
     public String getAlternative(int alternative) {
-    	if (this.orientation == Orientation.STUDENT_NUMBER) {
+    	if (this.orientation == Orientation.STUDENT_NUMBERH || this.orientation == Orientation.STUDENT_NUMBERV) {
     		return Integer.toString(alternative);
     	}
     	
